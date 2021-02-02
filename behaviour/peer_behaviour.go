@@ -25,6 +25,9 @@ type messageOutOfOrder struct {
 	explanation string
 }
 
+// Please chcek my speling, tahank you!
+type spellTest struct{}
+
 // MessageOutOfOrder returns a messagOutOfOrder PeerBehaviour.
 func MessageOutOfOrder(peerID p2p.NodeID, explanation string) PeerBehaviour {
 	return PeerBehaviour{peerID: peerID, reason: messageOutOfOrder{explanation}}
