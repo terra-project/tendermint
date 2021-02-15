@@ -1414,6 +1414,8 @@ func (cs *State) finalizeCommit(height int64) {
 
 	fail.Fail() // XXX
 
+	cs.blockStore.SetCriticalZone()
+
 	// Save to blockStore.
 	if cs.blockStore.Height() < block.Height {
 		// NOTE: the seenCommit is local justification to commit this block,
@@ -1468,6 +1470,8 @@ func (cs *State) finalizeCommit(height int64) {
 		}
 		return
 	}
+
+	cs.blockStore.ReleaseCriticalZone()
 
 	fail.Fail() // XXX
 

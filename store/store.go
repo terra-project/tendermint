@@ -261,6 +261,14 @@ func (bs *BlockStore) PruneBlocks(height int64) (uint64, error) {
 	return pruned, nil
 }
 
+func (bs *BlockStore) SetCriticalZone() {
+	bs.db.SetCriticalZone()
+}
+
+func (bs *BlockStore) ReleaseCriticalZone() error {
+	return bs.db.ReleaseCriticalZone()
+}
+
 // SaveBlock persists the given block, blockParts, and seenCommit to the underlying db.
 // blockParts: Must be parts of the block
 // seenCommit: The +2/3 precommits that were seen which committed at height.

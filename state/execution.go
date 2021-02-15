@@ -117,6 +117,10 @@ func (blockExec *BlockExecutor) ValidateBlock(state State, block *types.Block) e
 	return validateBlock(blockExec.evpool, blockExec.db, state, block)
 }
 
+func (blockExec *BlockExecutor) Release() error {
+	return blockExec.db.ReleaseCriticalZone()
+}
+
 // ApplyBlock validates the block against the state, executes it against the app,
 // fires the relevant events, commits the app, and saves the new state and responses.
 // It returns the new state and the block height to retain (pruning older blocks).
@@ -126,6 +130,7 @@ func (blockExec *BlockExecutor) ValidateBlock(state State, block *types.Block) e
 func (blockExec *BlockExecutor) ApplyBlock(
 	state State, blockID types.BlockID, block *types.Block,
 ) (State, int64, error) {
+	blockExec.db.SetCriticalZone()
 
 	if err := blockExec.ValidateBlock(state, block); err != nil {
 		return state, 0, ErrInvalidBlock(err)
@@ -180,9 +185,9 @@ func (blockExec *BlockExecutor) ApplyBlock(
 	// Update the app hash and save the state.
 	state.AppHash = appHash
 	SaveState(blockExec.db, state)
+	blockExec.db.ReleaseCriticalZone()
 
 	fail.Fail() // XXX
-
 	// Events are fired after everything else.
 	// NOTE: if we crash between Commit and Save, events wont be fired during replay
 	fireEvents(blockExec.logger, blockExec.eventBus, block, abciResponses, validatorUpdates)
