@@ -1,6 +1,8 @@
 package abcicli
 
 import (
+	"fmt"
+	"strings"
 	"sync"
 
 	types "github.com/tendermint/tendermint/abci/types"
@@ -104,8 +106,15 @@ func (app *localClient) CheckTxAsync(req types.RequestCheckTx) *ReqRes {
 }
 
 func (app *localClient) QueryAsync(req types.RequestQuery) *ReqRes {
-	app.mtx.RLock()
-	defer app.mtx.RUnlock()
+	app.Logger.Info(fmt.Sprintf("QueryAsync: %v", req.Path))
+
+	if strings.HasPrefix(req.Path, "custom/wasm") {
+		app.mtx.Lock()
+		defer app.mtx.Unlock()
+	} else {
+		app.mtx.RLock()
+		defer app.mtx.RUnlock()
+	}
 
 	res := app.Application.Query(req)
 	return app.callback(
@@ -201,6 +210,16 @@ func (app *localClient) CheckTxSync(req types.RequestCheckTx) (*types.ResponseCh
 }
 
 func (app *localClient) QuerySync(req types.RequestQuery) (*types.ResponseQuery, error) {
+	app.Logger.Info(fmt.Sprintf("QuerySync: %v", req.Path))
+
+	if strings.HasPrefix(req.Path, "custom/wasm") {
+		app.mtx.Lock()
+		defer app.mtx.Unlock()
+	} else {
+		app.mtx.RLock()
+		defer app.mtx.RUnlock()
+	}
+
 	app.mtx.RLock()
 	defer app.mtx.RUnlock()
 
