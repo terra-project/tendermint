@@ -118,7 +118,7 @@ func (app *localClient) QueryAsync(req types.RequestQuery) *ReqRes {
 
 	defer func() {
 		durationMS := time.Since(begin).Nanoseconds() / 1000000
-		app.Logger.Info("LocalClient", "path", req.Path, "duration", durationMS, "begin", begin.Nanosecond()/1000000)
+		app.Logger.Info("LocalClient", "path", req.Path, "duration", durationMS, "begin", begin.UnixNano()/1000000)
 	}()
 
 	res := app.Application.Query(req)
