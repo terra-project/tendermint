@@ -1,9 +1,9 @@
 package abcicli
 
 import (
-	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	types "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/service"
@@ -106,7 +106,7 @@ func (app *localClient) CheckTxAsync(req types.RequestCheckTx) *ReqRes {
 }
 
 func (app *localClient) QueryAsync(req types.RequestQuery) *ReqRes {
-	app.Logger.Info(fmt.Sprintf("QueryAsync: %v", req.Path))
+	begin := time.Now()
 
 	if strings.HasPrefix(req.Path, "custom/wasm") {
 		app.mtx.Lock()
@@ -115,6 +115,11 @@ func (app *localClient) QueryAsync(req types.RequestQuery) *ReqRes {
 		app.mtx.RLock()
 		defer app.mtx.RUnlock()
 	}
+
+	defer func() {
+		durationMS := time.Since(begin).Nanoseconds() / 1000000
+		app.Logger.Info("LocalClient", "path", req.Path, "duration", durationMS, "begin", begin.Nanosecond()/1000000)
+	}()
 
 	res := app.Application.Query(req)
 	return app.callback(
@@ -210,7 +215,7 @@ func (app *localClient) CheckTxSync(req types.RequestCheckTx) (*types.ResponseCh
 }
 
 func (app *localClient) QuerySync(req types.RequestQuery) (*types.ResponseQuery, error) {
-	app.Logger.Info(fmt.Sprintf("QuerySync: %v", req.Path))
+	begin := time.Now()
 
 	if strings.HasPrefix(req.Path, "custom/wasm") {
 		app.mtx.Lock()
@@ -219,6 +224,11 @@ func (app *localClient) QuerySync(req types.RequestQuery) (*types.ResponseQuery,
 		app.mtx.RLock()
 		defer app.mtx.RUnlock()
 	}
+
+	defer func() {
+		durationMS := time.Since(begin).Nanoseconds() / 1000000
+		app.Logger.Info("LocalClient", "path", req.Path, "duration", durationMS, "begin", begin.Nanosecond()/1000000)
+	}()
 
 	res := app.Application.Query(req)
 	return &res, nil
