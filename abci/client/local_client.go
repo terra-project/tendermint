@@ -220,9 +220,6 @@ func (app *localClient) QuerySync(req types.RequestQuery) (*types.ResponseQuery,
 		defer app.mtx.RUnlock()
 	}
 
-	app.mtx.RLock()
-	defer app.mtx.RUnlock()
-
 	res := app.Application.Query(req)
 	return &res, nil
 }
