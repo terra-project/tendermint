@@ -30,6 +30,9 @@ type BlockStore interface {
 
 	LoadBlockCommit(height int64) *types.Commit
 	LoadSeenCommit(height int64) *types.Commit
+
+	// calls dbcache.Close() to flush the current height's cache
+	Flush() error
 }
 
 //-----------------------------------------------------------------------------

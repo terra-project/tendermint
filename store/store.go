@@ -318,6 +318,11 @@ func (bs *BlockStore) SaveBlock(block *types.Block, blockParts *types.PartSet, s
 	bs.db.SetSync(nil, nil)
 }
 
+// Flush current height's cache, only when using DBCache backend
+func (bs *BlockStore) Flush() error {
+	return bs.db.Close()
+}
+
 func (bs *BlockStore) saveBlockPart(height int64, index int, part *types.Part) {
 	partBytes := cdc.MustMarshalBinaryBare(part)
 	bs.db.Set(calcBlockPartKey(height, index), partBytes)

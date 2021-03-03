@@ -180,6 +180,8 @@ func (blockExec *BlockExecutor) ApplyBlock(
 	// Update the app hash and save the state.
 	state.AppHash = appHash
 	SaveState(blockExec.db, state)
+	// flush cache
+	blockExec.db.Close()
 
 	fail.Fail() // XXX
 

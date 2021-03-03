@@ -1480,6 +1480,9 @@ func (cs *State) finalizeCommit(height int64) {
 		return
 	}
 
+	// flush cache
+	cs.blockStore.Flush()
+
 	fail.Fail() // XXX
 
 	// Prune old heights, if requested by ABCI app.
